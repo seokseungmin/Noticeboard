@@ -42,7 +42,7 @@
 
 
 ## ERD 
-![ERD](doc/img/erd.png)
+![ERD](doc/img/notice.png)
 
 ## Trouble Shooting
 [go to the trouble shooting section](doc/TROUBLE_SHOOTING.md)
