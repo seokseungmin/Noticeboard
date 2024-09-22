@@ -7,15 +7,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class UserEntity {
+public class UserEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +22,10 @@ public class UserEntity {
     private String username;
     @Column(name = "password")
     private String password;
+
     @Column(name = "email")
     private String email;
 
-    @Column(name = "create_date")
-    private LocalDateTime createDate;
 
     // JPA와의 호환성, 유지보수성 측면에서 일반적으로는 @Enumerated(EnumType.STRING)을 사용하여
     // VARCHAR로 저장하는 것이 더 안전하고 추천되는 방식.

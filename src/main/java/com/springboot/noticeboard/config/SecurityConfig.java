@@ -6,6 +6,7 @@ import com.springboot.noticeboard.jwt.JWTUtil;
 import com.springboot.noticeboard.jwt.LoginFilter;
 import com.springboot.noticeboard.repository.RefreshRepository;
 import com.springboot.noticeboard.repository.UserRepository;
+import com.springboot.noticeboard.service.CookieService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final UserRepository userRepository;
     private final RefreshRepository refreshRepository;
+    private final CookieService cookieService;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -97,7 +99,7 @@ public class SecurityConfig {
 
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository, cookieService), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);

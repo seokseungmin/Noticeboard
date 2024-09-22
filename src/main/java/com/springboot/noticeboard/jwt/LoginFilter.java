@@ -1,12 +1,11 @@
 package com.springboot.noticeboard.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springboot.noticeboard.dto.request.CustomUserDetails;
 import com.springboot.noticeboard.dto.request.LoginRequestDTO;
 import com.springboot.noticeboard.entity.RefreshEntity;
 import com.springboot.noticeboard.repository.RefreshRepository;
+import com.springboot.noticeboard.service.CookieService;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //JWTUtil 주입
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final CookieService cookieService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -72,13 +72,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", email, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
 
-
         //Refresh 토큰 저장
         addRefreshEntity(email, refresh, 86400000L);
 
         //응답 설정
         response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
+        response.addCookie(cookieService.createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -101,16 +100,5 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
-    }
-
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
     }
 }

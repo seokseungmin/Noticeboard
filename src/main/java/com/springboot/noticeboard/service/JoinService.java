@@ -3,13 +3,9 @@ package com.springboot.noticeboard.service;
 import com.springboot.noticeboard.dto.request.JoinDTO;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.repository.UserRepository;
-import com.springboot.noticeboard.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +32,6 @@ public class JoinService {
                 .username(joinDTO.getUsername())
                 .password(passwordEncoder.encode(joinDTO.getPassword()))
                 .email(joinDTO.getEmail())
-                .createDate(LocalDateTime.now())
                 .role(joinDTO.getRole())
                 .build();
     }

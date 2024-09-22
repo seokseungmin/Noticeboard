@@ -13,7 +13,6 @@ public class JoinController {
     @PostMapping("/join")
     public String joinProcess(@RequestBody JoinDTO joinDTO) {
 
-        System.out.println(joinDTO.getUsername());
         joinService.joinProcess(joinDTO);
 
         return "ok";
