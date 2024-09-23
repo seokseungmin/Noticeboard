@@ -1,5 +1,7 @@
 package com.springboot.noticeboard.controller;
 
+import com.springboot.noticeboard.dto.response.ResponseResult;
+import com.springboot.noticeboard.dto.response.ServiceResult;
 import com.springboot.noticeboard.service.ReissueService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +18,7 @@ public class ReissueController {
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        return reissueService.reissue(request, response);
+        ServiceResult serviceResult = reissueService.reissue(request, response);
+        return ResponseResult.result(serviceResult);
     }
 }

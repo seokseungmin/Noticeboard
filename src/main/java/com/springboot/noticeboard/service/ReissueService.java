@@ -1,5 +1,6 @@
 package com.springboot.noticeboard.service;
 
+import com.springboot.noticeboard.dto.response.ServiceResult;
 import com.springboot.noticeboard.entity.RefreshEntity;
 import com.springboot.noticeboard.jwt.JWTUtil;
 import com.springboot.noticeboard.repository.RefreshRepository;
@@ -8,8 +9,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -22,27 +21,27 @@ public class ReissueService {
     private final RefreshRepository refreshRepository;
     private final CookieService cookieService;
 
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ServiceResult reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = getRefreshTokenFromCookies(request);
 
         if (refresh == null) {
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+            return ServiceResult.fail("refresh 토큰이 없습니다!");
         }
 
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+            return ServiceResult.fail("만료된 refresh 토큰!");
         }
 
         String category = jwtUtil.getCategory(refresh);
         if (!"refresh".equals(category)) {
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            return ServiceResult.fail("refresh 토큰이 아닙니다!");
         }
 
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            return ServiceResult.fail("존재하지 않는 refresh 토큰입니다!");
         }
 
         String email = jwtUtil.getEmail(refresh);
@@ -60,7 +59,7 @@ public class ReissueService {
         response.setHeader("access", newAccess);
         response.addCookie(cookieService.createCookie("refresh", newRefresh));
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ServiceResult.success("Access 토근, Refresh 토큰 재발급 성공!");
     }
 
     private String getRefreshTokenFromCookies(HttpServletRequest request) {
