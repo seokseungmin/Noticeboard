@@ -16,10 +16,11 @@ public class UserEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "username")
     private String username;
+
     @Column(name = "password")
     private String password;
 
