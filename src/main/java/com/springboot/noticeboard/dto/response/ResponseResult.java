@@ -2,7 +2,7 @@ package com.springboot.noticeboard.dto.response;
 
 
 import org.springframework.http.ResponseEntity;
-
+//
 public class ResponseResult {
 
     public static ResponseEntity<?> fail(String message) {

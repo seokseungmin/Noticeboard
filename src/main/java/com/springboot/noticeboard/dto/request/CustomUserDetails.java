@@ -1,14 +1,13 @@
 package com.springboot.noticeboard.dto.request;
 
 import com.springboot.noticeboard.entity.UserEntity;
-import com.springboot.noticeboard.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+//
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 

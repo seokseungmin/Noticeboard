@@ -1,5 +1,5 @@
 package com.springboot.noticeboard.type;
-
+//
 public enum Role {
     ROLE_USER("사용자"),
     ROLE_ANONYMOUS("익명"),

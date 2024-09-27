@@ -8,7 +8,7 @@ import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//
 public class ErrorResponseHandler {
 
     public static ResponseEntity<?> handleValidationErrors(Errors errors) {

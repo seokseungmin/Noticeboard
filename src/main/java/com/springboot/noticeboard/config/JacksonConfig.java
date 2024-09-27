@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 v.HttpMessageNotReadableException: JSON parse error: Cannot coerce empty String ("") to com.springboot.noticeboard.type.Role value (but could if coercion was enabled using CoercionConfig)]
  오류 발생해서 추가한 Config클래스
  */
+//
 @Configuration
 public class JacksonConfig {
 
