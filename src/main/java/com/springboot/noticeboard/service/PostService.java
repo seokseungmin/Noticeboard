@@ -7,7 +7,10 @@ import com.springboot.noticeboard.entity.PostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.PostRepository;
+import com.springboot.noticeboard.type.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,7 +59,7 @@ public class PostService {
                 .orElseThrow(() -> new BizException("게시물을 찾지 못했습니다!"));
 
         // 게시글 작성자와 현재 사용자가 동일한지 확인
-        if (!postEntity.getAuthor().getId().equals(currentUser.getId())) {
+        if (!postEntity.getAuthor().getId().equals(currentUser.getId()) || !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
             throw new BizException("게시글을 삭제할 권한이 없습니다.");
         }
 
@@ -64,4 +67,16 @@ public class PostService {
 
         return ServiceResult.success("게시글 삭제 성공!");
     }
+
+    // 게시글 목록 조회
+    public Page<PostEntity> getPosts(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
+
+    // 특정 게시글 조회
+    public PostEntity getPost(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다."));
+    }
+
 }

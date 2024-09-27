@@ -86,9 +86,9 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
+                        .requestMatchers("/login", "/", "/join","/board/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/board/**").hasAnyRole("USER", "ADMIN") // USER와 ADMIN만 접근 가능
+                        .requestMatchers("/post/**").hasAnyRole("USER", "ADMIN") // USER와 ADMIN만 접근 가능
                         .requestMatchers("/reissue").permitAll()
                         //.requestMatchers("/user").hasRole("USER")
                         //.requestMatchers("/anonymous").hasRole("ANONYMOUS")

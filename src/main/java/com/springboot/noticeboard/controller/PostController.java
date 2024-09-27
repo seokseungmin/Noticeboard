@@ -6,20 +6,26 @@ import com.springboot.noticeboard.dto.request.UpdatePostDTO;
 import com.springboot.noticeboard.dto.response.ErrorResponseHandler;
 import com.springboot.noticeboard.dto.response.ResponseResult;
 import com.springboot.noticeboard.dto.response.ServiceResult;
+import com.springboot.noticeboard.entity.PostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.repository.UserRepository;
 import com.springboot.noticeboard.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/post")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -69,4 +75,5 @@ public class PostController {
         ServiceResult serviceResult = postService.deletePost(postId, currentUser);
         return ResponseResult.result(serviceResult);
     }
+
 }
