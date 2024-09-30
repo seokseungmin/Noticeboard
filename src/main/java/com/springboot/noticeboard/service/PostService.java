@@ -39,6 +39,7 @@ public class PostService {
         return ServiceResult.success("게시글 등록 성공!");
     }
 
+    // JPA 더티 체크(Dirty Checking) 적용
     @Transactional
     public ServiceResult updatePost(Long postId, UpdatePostDTO updatePostDTO, UserEntity currentUser) {
 

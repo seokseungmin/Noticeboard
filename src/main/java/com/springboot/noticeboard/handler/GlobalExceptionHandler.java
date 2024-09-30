@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// 전역 예외 처리 핸들러 추가
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
