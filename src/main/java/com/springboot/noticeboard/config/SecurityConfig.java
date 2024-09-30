@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -84,20 +85,19 @@ public class SecurityConfig {
                 .httpBasic((auth) -> auth.disable());
 
         //경로별 인가 작업
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join","/board/**").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/post/**").hasAnyRole("USER", "ADMIN") // USER와 ADMIN만 접근 가능
-                        .requestMatchers("/reissue").permitAll()
-                        //.requestMatchers("/user").hasRole("USER")
-                        //.requestMatchers("/anonymous").hasRole("ANONYMOUS")
-                        .anyRequest().authenticated());
+        // 경로별 접근 권한 설정
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/", "/join").permitAll()
+                .requestMatchers("/boards", "/boards/{postId}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/boards/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/boards/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/boards/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/admin").hasRole("ADMIN")
+                .anyRequest().authenticated());
 
 
         http
                 .addFilterBefore(new JWTFilter(userRepository, jwtUtil), LoginFilter.class);
-
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository, cookieService), UsernamePasswordAuthenticationFilter.class);

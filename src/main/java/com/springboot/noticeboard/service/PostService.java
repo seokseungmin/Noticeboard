@@ -8,16 +8,21 @@ import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.PostRepository;
 import com.springboot.noticeboard.type.Role;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
+    private final EntityManagerFactory entityManagerFactory;
 
     public ServiceResult createPost(PostDTO postDTO, UserEntity currentUser) {
 
@@ -34,6 +39,7 @@ public class PostService {
         return ServiceResult.success("게시글 등록 성공!");
     }
 
+    @Transactional
     public ServiceResult updatePost(Long postId, UpdatePostDTO updatePostDTO, UserEntity currentUser) {
 
         PostEntity postEntity = postRepository.findById(postId)
@@ -44,11 +50,11 @@ public class PostService {
             throw new BizException("게시글을 수정할 권한이 없습니다.");
         }
 
+        // Dirty Checking을 통해 변경된 필드 자동 감지
         postEntity.setTitle(updatePostDTO.getTitle());
         postEntity.setContent(updatePostDTO.getContent());
 
-        postRepository.save(postEntity);
-
+        // 여기서 `save()` 호출 없이도 변경사항이 자동으로 반영됨 (Dirty Checking)
         return ServiceResult.success("게시글 수정 완료!");
     }
 

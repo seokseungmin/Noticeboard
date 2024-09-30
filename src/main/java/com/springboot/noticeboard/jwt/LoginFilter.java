@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -40,7 +42,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             // JSON 데이터를 LoginRequest DTO로 변환
             loginRequest = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDTO.class);
+            log.debug("Login attempt for user with email: {}", loginRequest.getEmail());
         } catch (IOException e) {
+            log.error("Failed to parse login request", e);
             throw new RuntimeException(e);
         }
 
@@ -48,10 +52,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        System.out.println(email);
+        log.debug("Attempting to authenticate user with email: {}", email);
+
 
         //스프링 시큐리티에서 email과 password를 검증하기 위해서는 token에 담아야 함
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
+        log.debug("Generated authentication token for user: {}", email);
 
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
@@ -62,6 +68,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         //유저 정보
         String email = authentication.getName();
+        log.info("Authentication successful for user: {}", email);
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -71,6 +78,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //토큰 생성
         String access = jwtUtil.createJwt("access", email, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
+        log.info("Generated access and refresh tokens for user: {}", email);
 
         //Refresh 토큰 저장
         addRefreshEntity(email, refresh, 86400000L);
@@ -79,6 +87,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setHeader("access", access);
         response.addCookie(cookieService.createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
+        log.debug("Access and refresh tokens sent in response for user: {}", email);
     }
 
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {
@@ -98,6 +107,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        log.warn("Authentication failed for user: {}", request.getParameter("email"), failed);
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
     }
