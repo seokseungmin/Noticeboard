@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+// Logger 적용으로 로깅 개선
 @Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {

@@ -19,11 +19,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+// RESTful API 설계 개선
+// 예외 처리 리팩토링
 @RestController
 @RequestMapping("/boards")
 @RequiredArgsConstructor
