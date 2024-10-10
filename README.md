@@ -56,8 +56,6 @@
 ## ERD 
 ![ERD](doc/img/noticeboard.png)
 
-## Trouble Shooting
-[go to the trouble shooting section](doc/TROUBLE_SHOOTING.md)
 
 ### Tech Stack
 <div align=center> 
@@ -66,8 +64,13 @@
 <img src="https://img.shields.io/badge/Spring Security-59666C?style=for-the-badge&logo=Spring Security&logoColor=white"/>
 <img src="https://img.shields.io/badge/Spring Data JPA-59666C?style=for-the-badge&logo=Spring&logoColor=white"/>
 <img src="https://img.shields.io/badge/Querydsl-59666C?style=for-the-badge&logo=Spring&logoColor=white"/>
+<img src="https://img.shields.io/badge/JWT-59666C?style=for-the-badge&logo=JSON Web Tokens&logoColor=white"/>
 <img src="https://img.shields.io/badge/gradle-59666C?style=for-the-badge&logo=gradle&logoColor=white"/>
 <img src="https://img.shields.io/badge/Lombok-59666C?style=for-the-badge&logo=Spring&logoColor=white"/>
 <img src="https://img.shields.io/badge/Mysql-59666C?style=for-the-badge&logo=MySql&logoColor=white"/>
+<img src="https://img.shields.io/badge/JUnit 5-59666C?style=for-the-badge&logo=JUnit5&logoColor=white"/>
 <img src="https://img.shields.io/badge/git-59666C?style=for-the-badge&logo=git&logoColor=white">
 </div>
+
+### Trouble Shooting
+[go to the trouble shooting section](doc/TROUBLE_SHOOTING.md)
