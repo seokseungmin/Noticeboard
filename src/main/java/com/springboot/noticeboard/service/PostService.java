@@ -1,16 +1,16 @@
 package com.springboot.noticeboard.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.springboot.noticeboard.dto.request.PostDTO;
 import com.springboot.noticeboard.dto.request.UpdatePostDTO;
 import com.springboot.noticeboard.dto.response.ServiceResult;
 import com.springboot.noticeboard.entity.PostEntity;
+import com.springboot.noticeboard.entity.QPostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.PostRepository;
 import com.springboot.noticeboard.type.Role;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +24,27 @@ public class PostService {
     private final PostRepository postRepository;
     private final EntityManagerFactory entityManagerFactory;
 
+
+    // 게시글 목록 조회 - Querydsl 적용
+    public Page<PostEntity> getPosts(Pageable pageable, String keyword) {
+        QPostEntity post = QPostEntity.postEntity;
+
+        BooleanExpression expression = post.isNotNull(); // 기본적으로 모든 게시글을 가져오는 조건
+        if (keyword != null && !keyword.isEmpty()) {
+            expression = expression.and(post.title.containsIgnoreCase(keyword)
+                    .or(post.content.containsIgnoreCase(keyword))); // 제목 또는 내용 검색
+        }
+
+        return postRepository.findAll(expression, pageable);  // Querydsl 사용
+    }
+
+    // 특정 게시글 조회
+    public PostEntity getPost(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다."));
+    }
+
+    // 게시글 생성
     public ServiceResult createPost(PostDTO postDTO, UserEntity currentUser) {
 
         try {
@@ -39,7 +60,7 @@ public class PostService {
         return ServiceResult.success("게시글 등록 성공!");
     }
 
-    // JPA 더티 체크(Dirty Checking) 적용
+    // 게시글 수정
     @Transactional
     public ServiceResult updatePost(Long postId, UpdatePostDTO updatePostDTO, UserEntity currentUser) {
 
@@ -73,17 +94,6 @@ public class PostService {
         postRepository.delete(postEntity);
 
         return ServiceResult.success("게시글 삭제 성공!");
-    }
-
-    // 게시글 목록 조회
-    public Page<PostEntity> getPosts(Pageable pageable) {
-        return postRepository.findAll(pageable);
-    }
-
-    // 특정 게시글 조회
-    public PostEntity getPost(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다."));
     }
 
 }

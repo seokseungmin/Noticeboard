@@ -5,10 +5,12 @@ import com.springboot.noticeboard.dto.request.PostDTO;
 import com.springboot.noticeboard.dto.request.UpdatePostDTO;
 import com.springboot.noticeboard.dto.response.ResponseResult;
 import com.springboot.noticeboard.dto.response.ServiceResult;
+import com.springboot.noticeboard.entity.CommentEntity;
 import com.springboot.noticeboard.entity.PostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.UserRepository;
+import com.springboot.noticeboard.service.CommentService;
 import com.springboot.noticeboard.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class BoardController {
 
     private final PostService postService;
     private final UserRepository userRepository;
+    private final CommentService commentService;
 
     private UserEntity getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -69,22 +72,22 @@ public class BoardController {
         return ResponseResult.result(serviceResult);
     }
 
-    //SecurityConfig에 권한 없어도 접근할수 있게 해놓았는데도 403 에러가 계속뜸
-    // 게시글 목록 조회
+    // 게시글 목록 조회 (검색 기능 추가)
     @GetMapping()
     public ResponseEntity<?> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createDate") String sortBy,  // createDate로 변경
-            @RequestParam(defaultValue = "desc") String direction) {
-
+            @RequestParam(defaultValue = "createDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) String keyword  // 검색어 추가
+    ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
-        Page<PostEntity> postPage = postService.getPosts(pageable);
+        Page<PostEntity> postPage = postService.getPosts(pageable, keyword);  // 검색어 전달
 
         return ResponseEntity.ok(postPage.map(post -> Map.of(
                 "id", post.getId(),
                 "title", post.getTitle(),
-                "createDate", post.getCreateDate(),  // 이 부분도 createDate로 수정
+                "createDate", post.getCreateDate(),
                 "commentCount", post.getCommentCount()
         )));
     }
@@ -98,6 +101,25 @@ public class BoardController {
                 "author", post.getAuthor().getUsername(),
                 "createDate", post.getCreateDate()
         ));
+    }
+
+    // 댓글 목록 조회 API
+    @GetMapping("{postId}/comments")
+    public ResponseEntity<?> getCommentsByPostId(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createDate"));
+        Page<CommentEntity> commentPage = commentService.getCommentsByPostId(postId, pageable);
+
+        // 댓글 목록을 Map 형식으로 변환하여 응답
+        return ResponseEntity.ok(commentPage.map(comment -> Map.of(
+                "id", comment.getId(),
+                "content", comment.getContent(),
+                "author", comment.getAuthor().getUsername(),  // 댓글 작성자
+                "createDate", comment.getCreateDate()         // 댓글 작성일
+        )));
     }
 
 }

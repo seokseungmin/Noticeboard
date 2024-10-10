@@ -1,18 +1,17 @@
 package com.springboot.noticeboard.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "title", "content", "commentCount"})
 @Entity
 public class PostEntity extends AuditableEntity {
 
@@ -26,20 +25,38 @@ public class PostEntity extends AuditableEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    // fetch = FetchType.LAZY: 데이터를 지연 로딩하겠다는 의미입니다.
-    // 즉, 게시글 정보를 먼저 가져오고, 작성자 정보는 필요할 때만 데이터베이스에서 가져옵니다.
-    // 성능 최적화를 위해 사용
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity author;
 
-    //cascade = CascadeType.ALL: 게시글이 삭제되거나 수정될 때, 연관된 댓글들도 함께 영향을 받습니다.
-    // 예를 들어, 게시글을 삭제하면 연관된 댓글도 같이 삭제됩니다.
-    //orphanRemoval = true: 고아 객체 제거 옵션입니다.
-    // 만약 댓글이 리스트에서 제거되면, 데이터베이스에서도 삭제됩니다.
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments;
+    @Builder.Default
+    private List<CommentEntity> comments = new ArrayList<>();  // 초기화 필수
 
     @Column(nullable = false)
+    @Builder.Default
     private int commentCount = 0;
+
+    // 연관관계 편의 메서드 - Comment 추가
+    public void addComment(CommentEntity comment) {
+        comments.add(comment);
+        comment.setPost(this);
+    }
+
+    // 연관관계 편의 메서드 - Comment 제거
+    public void removeComment(CommentEntity comment) {
+        comments.remove(comment);
+        comment.setPost(null);
+    }
+
+    // 연관관계 편의 메서드 - Author 설정
+    public void setAuthor(UserEntity author) {
+        if (this.author != null) {
+            this.author.getPosts().remove(this);  // 기존 관계 제거
+        }
+        this.author = author;
+        if (author != null) {
+            author.getPosts().add(this);  // 새로운 관계 설정
+        }
+    }
 }
