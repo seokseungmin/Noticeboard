@@ -54,7 +54,7 @@
 
 
 ## ERD 
-![ERD](doc/img/notice.png)
+![ERD](doc/img/noticeboard.png)
 
 ## Trouble Shooting
 [go to the trouble shooting section](doc/TROUBLE_SHOOTING.md)
