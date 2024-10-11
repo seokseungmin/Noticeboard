@@ -2,15 +2,17 @@ package com.springboot.noticeboard.entity;
 
 import com.springboot.noticeboard.type.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "username", "email", "role"})
 @Entity
 public class UserEntity extends BaseEntity {
 
@@ -18,18 +20,48 @@ public class UserEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-
-    // JPA와의 호환성, 유지보수성 측면에서 일반적으로는 @Enumerated(EnumType.STRING)을 사용하여
-    // VARCHAR로 저장하는 것이 더 안전하고 추천되는 방식.
-    @Enumerated(EnumType.STRING)  // Enum을 문자열로 저장
+    @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PostEntity> posts = new ArrayList<>();  // 초기화 필수
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommentEntity> comments = new ArrayList<>();  // 초기화 필수
+
+    // 연관관계 편의 메서드 - Post 추가
+    public void addPost(PostEntity post) {
+        posts.add(post);
+        post.setAuthor(this);
+    }
+
+    // 연관관계 편의 메서드 - Post 제거
+    public void removePost(PostEntity post) {
+        posts.remove(post);
+        post.setAuthor(null);
+    }
+
+    // 연관관계 편의 메서드 - Comment 추가
+    public void addComment(CommentEntity comment) {
+        comments.add(comment);
+        comment.setAuthor(this);
+    }
+
+    // 연관관계 편의 메서드 - Comment 제거
+    public void removeComment(CommentEntity comment) {
+        comments.remove(comment);
+        comment.setAuthor(null);
+    }
 }
+
