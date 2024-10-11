@@ -3,7 +3,8 @@ package com.springboot.noticeboard.controller;
 import com.springboot.noticeboard.dto.request.CustomUserDetails;
 import com.springboot.noticeboard.dto.request.PostDTO;
 import com.springboot.noticeboard.dto.request.UpdatePostDTO;
-import com.springboot.noticeboard.dto.response.*;
+import com.springboot.noticeboard.dto.response.ResponseResult;
+import com.springboot.noticeboard.dto.response.ServiceResult;
 import com.springboot.noticeboard.entity.CommentEntity;
 import com.springboot.noticeboard.entity.PostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
@@ -21,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 // RESTful API 설계 개선
 // 예외 처리 리팩토링
@@ -81,30 +84,23 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
         Page<PostEntity> postPage = postService.getPosts(pageable, keyword);  // 검색어 전달
 
-        // PostDTO로 변환하여 반환
-        Page<getPostsDTO> getPostsDTOS = postPage.map(post -> getPostsDTO.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .createDate(post.getCreateDate())
-                .commentCount(post.getCommentCount())
-                .build());
-
-        return ResponseEntity.ok(getPostsDTOS);
+        return ResponseEntity.ok(postPage.map(post -> Map.of(
+                "id", post.getId(),
+                "title", post.getTitle(),
+                "createDate", post.getCreateDate(),
+                "commentCount", post.getCommentCount()
+        )));
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
         PostEntity post = postService.getPost(postId);
-
-        // PostDetailDTO로 변환하여 반환
-        PostDetailDTO postDetailDTO = PostDetailDTO.builder()
-                .title(post.getTitle())
-                .content(post.getContent())
-                .author(post.getAuthor().getUsername())
-                .createDate(post.getCreateDate())
-                .build();
-
-        return ResponseEntity.ok(postDetailDTO);
+        return ResponseEntity.ok(Map.of(
+                "title", post.getTitle(),
+                "content", post.getContent(),
+                "author", post.getAuthor().getUsername(),
+                "createDate", post.getCreateDate()
+        ));
     }
 
     // 댓글 목록 조회 API
@@ -117,15 +113,13 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createDate"));
         Page<CommentEntity> commentPage = commentService.getCommentsByPostId(postId, pageable);
 
-        // 댓글 목록을 CommentDTO로 변환하여 응답
-        Page<getCommentsByPostIdDTO> commentDTOPage = commentPage.map(comment -> getCommentsByPostIdDTO.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
-                .author(comment.getAuthor().getUsername())  // 댓글 작성자
-                .createDate(comment.getCreateDate())        // 댓글 작성일
-                .build());
-
-        return ResponseEntity.ok(commentDTOPage);
+        // 댓글 목록을 Map 형식으로 변환하여 응답
+        return ResponseEntity.ok(commentPage.map(comment -> Map.of(
+                "id", comment.getId(),
+                "content", comment.getContent(),
+                "author", comment.getAuthor().getUsername(),  // 댓글 작성자
+                "createDate", comment.getCreateDate()         // 댓글 작성일
+        )));
     }
 
 }
