@@ -92,7 +92,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/boards/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/boards/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/boards/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/comments").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/comments/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 

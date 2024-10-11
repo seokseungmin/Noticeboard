@@ -2,6 +2,7 @@ package com.springboot.noticeboard.controller;
 
 import com.springboot.noticeboard.dto.request.CommentDTO;
 import com.springboot.noticeboard.dto.request.CustomUserDetails;
+import com.springboot.noticeboard.dto.request.UpdateCommentDTO;
 import com.springboot.noticeboard.dto.response.ResponseResult;
 import com.springboot.noticeboard.dto.response.ServiceResult;
 import com.springboot.noticeboard.entity.CommentEntity;
@@ -44,6 +45,16 @@ public class CommentController {
     public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO, Authentication authentication) {
         UserEntity currentUser = getCurrentUser(authentication);
         ServiceResult result = commentService.addComment(commentDTO, currentUser);
+        return ResponseResult.result(result);
+    }
+
+    // 댓글 수정 API
+    @PutMapping("/{commentId}")
+    public ResponseEntity<?> updateComment(@PathVariable Long commentId,
+                                           @RequestBody @Valid UpdateCommentDTO updateCommentDTO,
+                                           Authentication authentication) {
+        UserEntity currentUser = getCurrentUser(authentication);
+        ServiceResult result = commentService.updateComment(commentId, updateCommentDTO, currentUser);
         return ResponseResult.result(result);
     }
 

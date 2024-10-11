@@ -3,7 +3,7 @@ package com.springboot.noticeboard.handler;
 import com.springboot.noticeboard.dto.response.ResponseError;
 import com.springboot.noticeboard.dto.response.ResponseResult;
 import com.springboot.noticeboard.exception.BizException;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
                 .map(ResponseError::of)
                 .collect(Collectors.toList());
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    // 데이터베이스 제약 조건 위반 (예: 이메일 중복)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        return ResponseResult.fail("이미 존재하는 이메일입니다.");
     }
 
     // 커스텀 비즈니스 예외 처리
