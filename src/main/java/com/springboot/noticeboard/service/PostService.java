@@ -10,7 +10,6 @@ import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.PostRepository;
 import com.springboot.noticeboard.type.Role;
-import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final EntityManagerFactory entityManagerFactory;
-
 
     // 게시글 목록 조회 - Querydsl 적용
     public Page<PostEntity> getPosts(Pageable pageable, String keyword) {

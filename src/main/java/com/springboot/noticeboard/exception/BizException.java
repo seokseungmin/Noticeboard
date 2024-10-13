@@ -1,7 +1,9 @@
 package com.springboot.noticeboard.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public class BizException extends RuntimeException {
     private final HttpStatus status;
 
@@ -10,7 +12,4 @@ public class BizException extends RuntimeException {
         this.status = status;
     }
 
-    public HttpStatus getStatus() {
-        return status;
-    }
 }

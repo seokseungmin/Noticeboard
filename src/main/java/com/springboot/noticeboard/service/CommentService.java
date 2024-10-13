@@ -9,7 +9,6 @@ import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.CommentRepository;
 import com.springboot.noticeboard.repository.PostRepository;
-import com.springboot.noticeboard.repository.UserRepository;
 import com.springboot.noticeboard.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public ServiceResult addComment(CommentDTO commentDTO, UserEntity author) {
@@ -90,7 +88,7 @@ public class CommentService {
     public Page<CommentEntity> getCommentsByPostId(Long postId, Pageable pageable) {
 
         // 게시글이 존재하는지 확인 (존재하지 않으면 예외 발생)
-        PostEntity post = postRepository.findById(postId)
+        postRepository.findById(postId)
                 .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 댓글과 작성자를 최신순으로 한 번에 조회

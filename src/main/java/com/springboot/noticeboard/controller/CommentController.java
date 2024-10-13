@@ -5,23 +5,16 @@ import com.springboot.noticeboard.dto.request.CustomUserDetails;
 import com.springboot.noticeboard.dto.request.UpdateCommentDTO;
 import com.springboot.noticeboard.dto.response.ResponseResult;
 import com.springboot.noticeboard.dto.response.ServiceResult;
-import com.springboot.noticeboard.entity.CommentEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.UserRepository;
 import com.springboot.noticeboard.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/comments")
