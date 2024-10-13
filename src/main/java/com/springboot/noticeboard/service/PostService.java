@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +41,8 @@ public class PostService {
 
     // 특정 게시글 조회
     public PostEntity getPost(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다."));
+        return postRepository.findByIdWithAuthor(postId)
+                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
 
     // 게시글 생성
@@ -54,10 +55,11 @@ public class PostService {
                     .author(currentUser)
                     .build());
         } catch (Exception e) {
-            throw new BizException(e.getMessage());
+            // 예외 발생 시 500 상태 코드와 함께 메시지 전달
+            throw new BizException("게시글 등록 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return ServiceResult.success("게시글 등록 성공!");
+        return ServiceResult.success(HttpStatus.CREATED, "게시글 등록 성공!");  // 성공 시 201 Created
     }
 
     // 게시글 수정
@@ -65,11 +67,11 @@ public class PostService {
     public ServiceResult updatePost(Long postId, UpdatePostDTO updatePostDTO, UserEntity currentUser) {
 
         PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new BizException("게시물을 찾지 못했습니다!"));
+                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 게시글 작성자와 현재 사용자가 동일한지 확인
         if (!postEntity.getAuthor().getId().equals(currentUser.getId())) {
-            throw new BizException("게시글을 수정할 권한이 없습니다.");
+            throw new BizException("댓글을 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
         // Dirty Checking을 통해 변경된 필드 자동 감지
@@ -77,23 +79,23 @@ public class PostService {
         postEntity.setContent(updatePostDTO.getContent());
 
         // 여기서 `save()` 호출 없이도 변경사항이 자동으로 반영됨 (Dirty Checking)
-        return ServiceResult.success("게시글 수정 완료!");
+        return ServiceResult.success(HttpStatus.OK, "게시글 수정 완료!");
     }
 
     // 게시글 삭제
     public ServiceResult deletePost(Long postId, UserEntity currentUser) {
 
         PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new BizException("게시물을 찾지 못했습니다!"));
+                .orElseThrow(() -> new BizException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 게시글 작성자와 현재 사용자가 동일한지 확인
-        if (!postEntity.getAuthor().getId().equals(currentUser.getId()) || !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new BizException("게시글을 삭제할 권한이 없습니다.");
+        if (!postEntity.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new BizException("게시글을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
         postRepository.delete(postEntity);
 
-        return ServiceResult.success("게시글 삭제 성공!");
+        return ServiceResult.success(HttpStatus.OK, "게시글 삭제 성공!");
     }
 
 }

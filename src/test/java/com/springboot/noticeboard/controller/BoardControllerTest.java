@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -148,7 +149,7 @@ class BoardControllerTest {
                 .build();
 
         Mockito.when(postService.createPost(any(PostDTO.class), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("게시글 등록 성공!"));
+                .thenReturn(ServiceResult.success(HttpStatus.CREATED, "게시글 등록 성공!"));
 
         mockMvc.perform(post("/boards")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -168,7 +169,7 @@ class BoardControllerTest {
                 .build();
 
         Mockito.when(postService.updatePost(anyLong(), any(UpdatePostDTO.class), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("게시글 수정 성공!"));
+                .thenReturn(ServiceResult.success(HttpStatus.OK, "게시글 수정 성공!"));
 
         mockMvc.perform(put("/boards/" + firstPost.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -183,7 +184,7 @@ class BoardControllerTest {
     @DisplayName("게시글 삭제")
     public void testDeletePost() throws Exception {
         Mockito.when(postService.deletePost(anyLong(), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("게시글 삭제 성공!"));
+                .thenReturn(ServiceResult.success(HttpStatus.OK, "게시글 삭제 성공!"));
 
         mockMvc.perform(delete("/boards/" + firstPost.getId())
                         .header("access", accessToken))

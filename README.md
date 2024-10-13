@@ -39,6 +39,13 @@
 - **페이징 및 정렬**: 게시글과 댓글 모두 최신순 및 댓글 수, 특정 기준에 따라 정렬 가능하며, 많은 데이터를 처리할 때는 페이징 처리로 성능을 최적화합니다.
 - **토큰 재발급 기능**: Refresh 토큰을 이용해 만료된 Access 토큰을 재발급받을 수 있습니다.
 
+#### 7. **테스트 및 문제 해결**
+- **JWT 인증 테스트**: `MockMvc`를 사용하여 게시글 및 댓글 작성, 수정, 삭제 기능의 인증 과정을 테스트하였으며, `SecurityMockMvcRequestPostProcessors.user()`를 사용하여 인증된 사용자로 테스트를 진행했습니다.
+- **N+1 문제 해결**: JPA 연관 관계에서 발생하는 N+1 문제를 `JOIN FETCH`를 사용하여 해결했습니다. 이를 통해 댓글 작성자 정보 조회 시 발생하던 추가 쿼리 문제를 개선하였습니다.
+- **서비스 레이어 Mocking**: `Mockito`를 활용해 `PostService`와 `CommentService`의 메소드들을 Mocking하여 테스트 중 데이터 처리 로직을 검증했습니다.
+
+---
+
 ## 사용 기술 스택
 - **Spring Boot**: 백엔드 애플리케이션 개발을 위한 주요 프레임워크.
 - **Spring Security**: 인증 및 권한 관리를 위한 보안 프레임워크.
@@ -70,9 +77,12 @@
 <img src="https://img.shields.io/badge/gradle-59666C?style=for-the-badge&logo=gradle&logoColor=white"/>
 <img src="https://img.shields.io/badge/Lombok-59666C?style=for-the-badge&logo=Spring&logoColor=white"/>
 <img src="https://img.shields.io/badge/Mysql-59666C?style=for-the-badge&logo=MySql&logoColor=white"/>
+<img src="https://img.shields.io/badge/SLF4J-59666C?style=for-the-badge&logo=slf4j&logoColor=white"/>
+<img src="https://img.shields.io/badge/Logback-59666C?style=for-the-badge&logo=logback&logoColor=white"/>
 <img src="https://img.shields.io/badge/JUnit 5-59666C?style=for-the-badge&logo=JUnit5&logoColor=white"/>
 <img src="https://img.shields.io/badge/Mockito-59666C?style=for-the-badge&logo=Mockito&logoColor=white"/>
 <img src="https://img.shields.io/badge/git-59666C?style=for-the-badge&logo=git&logoColor=white">
+
 
 </div>
 

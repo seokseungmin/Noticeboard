@@ -14,6 +14,7 @@ import com.springboot.noticeboard.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class CommentService {
 
         // 게시글 존재 여부 확인
         PostEntity post = postRepository.findById(commentDTO.getPostId())
-                .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 댓글 저장
         CommentEntity comment = CommentEntity.builder()
@@ -43,24 +44,24 @@ public class CommentService {
         post.setCommentCount(post.getCommentCount() + 1);
 
         commentRepository.save(comment);
-        return ServiceResult.success("댓글 작성이 완료되었습니다.");
+        return ServiceResult.success(HttpStatus.CREATED, "댓글 작성이 완료되었습니다.");
     }
 
     @Transactional
     public ServiceResult updateComment(Long commentId, UpdateCommentDTO updateCommentDTO, UserEntity currentUser) {
         // 댓글이 존재하는지 확인
         CommentEntity comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BizException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BizException("댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 댓글 작성자인지 확인
         if (!comment.getAuthor().getId().equals(currentUser.getId())) {
-            throw new BizException("댓글을 수정할 권한이 없습니다.");
+            throw new BizException("댓글을 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
         // 댓글 내용 수정
         comment.setContent(updateCommentDTO.getContent());
 
-        return ServiceResult.success("댓글이 성공적으로 수정되었습니다.");
+        return ServiceResult.success(HttpStatus.OK, "댓글이 성공적으로 수정되었습니다.");
     }
 
     @Transactional
@@ -68,11 +69,11 @@ public class CommentService {
 
         // 댓글이 존재하는지 확인
         CommentEntity comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BizException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BizException("댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         // 댓글 주인이거나 관리자인지 확인
         if (!comment.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new BizException("댓글을 삭제할 권한이 없습니다.");
+            throw new BizException("댓글을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
         // 게시글의 commentCount 감소
@@ -81,7 +82,7 @@ public class CommentService {
 
         // 댓글 삭제
         commentRepository.delete(comment);
-        return ServiceResult.success("댓글이 성공적으로 삭제되었습니다.");
+        return ServiceResult.success(HttpStatus.OK, "댓글이 성공적으로 삭제되었습니다.");
     }
 
     // 댓글 목록 조회
@@ -90,10 +91,10 @@ public class CommentService {
 
         // 게시글이 존재하는지 확인 (존재하지 않으면 예외 발생)
         PostEntity post = postRepository.findById(postId)
-                .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        // 특정 게시글의 댓글 목록을 페이징 처리하여 최신순으로 가져옴
-        return commentRepository.findByPostIdOrderByCreateDateDesc(postId, pageable);
+        // 댓글과 작성자를 최신순으로 한 번에 조회
+        return commentRepository.findByPostIdWithAuthor(postId, pageable);
     }
 
 }

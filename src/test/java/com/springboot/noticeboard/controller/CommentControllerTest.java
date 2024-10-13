@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -95,7 +96,7 @@ public class CommentControllerTest {
 
         // When: 댓글 작성 서비스 호출을 Mocking
         Mockito.when(commentService.addComment(any(CommentDTO.class), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("댓글 작성이 완료되었습니다."));
+                .thenReturn(ServiceResult.success(HttpStatus.CREATED, "댓글 작성이 완료되었습니다."));
 
         // Then: MockMvc를 사용하여 API 호출 및 검증
         mockMvc.perform(post("/comments")
@@ -115,7 +116,7 @@ public class CommentControllerTest {
 
         // When: 댓글 수정 서비스 호출을 Mocking
         Mockito.when(commentService.updateComment(anyLong(), any(UpdateCommentDTO.class), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("댓글이 성공적으로 수정되었습니다."));
+                .thenReturn(ServiceResult.success(HttpStatus.OK, "댓글이 성공적으로 수정되었습니다."));
 
         // Then: MockMvc를 사용하여 API 호출 및 검증
         mockMvc.perform(put("/comments/" + comment.getId())
@@ -132,7 +133,7 @@ public class CommentControllerTest {
     public void testDeleteComment() throws Exception {
         // When: 댓글 삭제 서비스 호출을 Mocking
         Mockito.when(commentService.deleteComment(anyLong(), any(UserEntity.class)))
-                .thenReturn(ServiceResult.success("댓글이 성공적으로 삭제되었습니다."));
+                .thenReturn(ServiceResult.success(HttpStatus.OK, "댓글이 성공적으로 삭제되었습니다."));
 
         // Then: MockMvc를 사용하여 API 호출 및 검증
         mockMvc.perform(delete("/comments/" + comment.getId())

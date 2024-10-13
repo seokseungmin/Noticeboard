@@ -15,29 +15,29 @@ public class ResponseMessage {
     private ResponseMessageHeader header;
     private Object body;
 
-    public static ResponseMessage fail(String message, Object data) {
-
+    // 실패 응답 생성 (동적으로 상태 코드 포함)
+    public static ResponseMessage fail(HttpStatus status, String message, Object data) {
         return ResponseMessage.builder()
                 .header(ResponseMessageHeader.builder()
                         .result(false)
-                        .resultCode(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .resultCode(status.getReasonPhrase())  // 상태 코드 설명 (예: "Bad Request")
                         .message(message)
-                        .status(HttpStatus.BAD_REQUEST.value())
+                        .status(status.value())  // 상태 코드 (예: 400, 404)
                         .build())
                 .body(data)
                 .build();
     }
 
-    public static ResponseMessage success(String message, Object data) {
+    // 성공 응답 생성 (동적으로 상태 코드 포함)
+    public static ResponseMessage success(HttpStatus status, String message, Object data) {
         return ResponseMessage.builder()
                 .header(ResponseMessageHeader.builder()
                         .result(true)
-                        .resultCode(HttpStatus.OK.getReasonPhrase())
+                        .resultCode(status.getReasonPhrase())  // 상태 코드 설명 (예: "OK")
                         .message(message)
-                        .status(HttpStatus.OK.value())
+                        .status(status.value())  // 상태 코드 (예: 200)
                         .build())
                 .body(data)
                 .build();
     }
-
 }

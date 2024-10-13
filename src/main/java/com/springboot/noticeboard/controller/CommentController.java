@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,12 @@ public class CommentController {
 
     private UserEntity getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BizException("인증 정보가 없습니다.");
+            throw new BizException("인증 정보가 없습니다.", HttpStatus.UNAUTHORIZED);
         }
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         return userRepository.findByEmail(customUserDetails.getUsername())
-                .orElseThrow(() -> new BizException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BizException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
 
     // 댓글 작성

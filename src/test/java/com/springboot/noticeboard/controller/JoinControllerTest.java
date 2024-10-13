@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,7 +44,7 @@ public class JoinControllerTest {
 
         // Mock JoinService의 응답 설정
         Mockito.when(joinService.joinProcess(any(JoinDTO.class)))
-                .thenReturn(ServiceResult.success("회원 가입에 성공했습니다!"));
+                .thenReturn(ServiceResult.success(HttpStatus.OK, "회원 가입에 성공했습니다!"));
 
         // JSON 변환을 위한 ObjectMapper 사용
         String jsonRequest = objectMapper.writeValueAsString(joinDTO);
