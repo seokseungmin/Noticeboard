@@ -70,14 +70,13 @@ public class CommentServiceTest {
     public void testAddComment() {
         // Given
         CommentDTO commentDTO = new CommentDTO();
-        commentDTO.setPostId(1L);
         commentDTO.setContent("This is a test comment");
 
         Mockito.when(postRepository.findById(eq(1L))).thenReturn(Optional.of(mockPost));
         Mockito.when(commentRepository.save(any(CommentEntity.class))).thenReturn(mockComment);
 
         // When
-        var result = commentService.addComment(commentDTO, mockUser);
+        var result = commentService.addComment(1L, commentDTO, mockUser);
 
         // Then
         assertThat(result.isResult()).isTrue();

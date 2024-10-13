@@ -88,11 +88,17 @@ public class SecurityConfig {
         // 경로별 접근 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/", "/join", "/reissue").permitAll()
-                .requestMatchers("/boards", "/boards/{postId}/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/boards/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/boards/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/boards/**").hasAnyRole("USER", "ADMIN")
+
+                .requestMatchers(HttpMethod.GET,"/posts/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/posts/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/posts/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/posts/**").hasAnyRole("USER", "ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/comments/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/comments/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/comments/**").hasAnyRole("USER", "ADMIN")
+
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 

@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @Transactional  // 각 테스트마다 트랜잭션을 시작하고, 테스트 종료 후 롤백
-class BoardControllerTest {
+class PostControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -151,7 +151,7 @@ class BoardControllerTest {
         Mockito.when(postService.createPost(any(PostDTO.class), any(UserEntity.class)))
                 .thenReturn(ServiceResult.success(HttpStatus.CREATED, "게시글 등록 성공!"));
 
-        mockMvc.perform(post("/boards")
+        mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("access", accessToken)
                         .content(objectMapper.writeValueAsString(postDTO)))
@@ -171,7 +171,7 @@ class BoardControllerTest {
         Mockito.when(postService.updatePost(anyLong(), any(UpdatePostDTO.class), any(UserEntity.class)))
                 .thenReturn(ServiceResult.success(HttpStatus.OK, "게시글 수정 성공!"));
 
-        mockMvc.perform(put("/boards/" + firstPost.getId())
+        mockMvc.perform(put("/posts/" + firstPost.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("access", accessToken)
                         .content(objectMapper.writeValueAsString(updatePostDTO)))
@@ -186,7 +186,7 @@ class BoardControllerTest {
         Mockito.when(postService.deletePost(anyLong(), any(UserEntity.class)))
                 .thenReturn(ServiceResult.success(HttpStatus.OK, "게시글 삭제 성공!"));
 
-        mockMvc.perform(delete("/boards/" + firstPost.getId())
+        mockMvc.perform(delete("/posts/" + firstPost.getId())
                         .header("access", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.header.result").value(true))
@@ -198,7 +198,7 @@ class BoardControllerTest {
     public void testGetPost() throws Exception {
         Mockito.when(postService.getPost(anyLong())).thenReturn(firstPost);
 
-        mockMvc.perform(get("/boards/" + firstPost.getId())
+        mockMvc.perform(get("/posts/" + firstPost.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(firstPost.getTitle()))
@@ -219,7 +219,7 @@ class BoardControllerTest {
         Mockito.when(postService.getPosts(any(Pageable.class), anyString())).thenReturn(postPage);
 
         // API 호출 및 응답 검증
-        mockMvc.perform(get("/boards")
+        mockMvc.perform(get("/posts")
                         .param("page", "0")
                         .param("size", "10")
                         .param("sortBy", "createDate")
@@ -241,7 +241,7 @@ class BoardControllerTest {
 
         Mockito.when(commentService.getCommentsByPostId(anyLong(), any(Pageable.class))).thenReturn(commentPage);
 
-        mockMvc.perform(get("/boards/" + firstPost.getId() + "/comments")
+        mockMvc.perform(get("/comments/" + firstPost.getId() )
                         .param("page", "0")
                         .param("size", "10")
                         .header("access", accessToken))

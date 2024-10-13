@@ -5,6 +5,7 @@ import com.springboot.noticeboard.dto.request.LoginRequestDTO;
 import com.springboot.noticeboard.entity.RefreshEntity;
 import com.springboot.noticeboard.repository.RefreshRepository;
 import com.springboot.noticeboard.service.CookieService;
+import com.springboot.noticeboard.util.ResponseUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -87,7 +88,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //응답 설정
         response.setHeader("access", access);
         response.addCookie(cookieService.createCookie("refresh", refresh));
-        response.setStatus(HttpStatus.OK.value());
+
+        try {
+            // JSON 응답 생성
+            ResponseUtil.setJsonResponse(response, true, HttpStatus.OK.getReasonPhrase(), HttpServletResponse.SC_OK, "로그인에 성공했습니다!");
+        } catch (IOException e) {
+            log.error("Failed to write the response", e);
+        }
+
         log.debug("Access and refresh tokens sent in response for user: {}", email);
     }
 
@@ -109,7 +117,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         log.warn("Authentication failed for user: {}", request.getParameter("email"), failed);
+
         //로그인 실패시 401 응답 코드 반환
-        response.setStatus(401);
+        try {
+            // JSON 응답 생성
+            ResponseUtil.setJsonResponse(response, false, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpServletResponse.SC_UNAUTHORIZED, "로그인에 실패했습니다");
+        } catch (IOException e) {
+            log.error("Failed to write the response", e);
+        }
     }
 }

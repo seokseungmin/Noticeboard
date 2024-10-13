@@ -3,13 +3,14 @@ package com.springboot.noticeboard.controller;
 import com.springboot.noticeboard.dto.request.CustomUserDetails;
 import com.springboot.noticeboard.dto.request.PostDTO;
 import com.springboot.noticeboard.dto.request.UpdatePostDTO;
-import com.springboot.noticeboard.dto.response.*;
-import com.springboot.noticeboard.entity.CommentEntity;
+import com.springboot.noticeboard.dto.response.PostDetailDTO;
+import com.springboot.noticeboard.dto.response.ResponseResult;
+import com.springboot.noticeboard.dto.response.ServiceResult;
+import com.springboot.noticeboard.dto.response.getPostsDTO;
 import com.springboot.noticeboard.entity.PostEntity;
 import com.springboot.noticeboard.entity.UserEntity;
 import com.springboot.noticeboard.exception.BizException;
 import com.springboot.noticeboard.repository.UserRepository;
-import com.springboot.noticeboard.service.CommentService;
 import com.springboot.noticeboard.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,12 @@ import org.springframework.web.bind.annotation.*;
 // RESTful API 설계 개선
 // 예외 처리 리팩토링
 @RestController
-@RequestMapping("/boards")
+@RequestMapping("/posts")
 @RequiredArgsConstructor
-public class BoardController {
+public class PostController {
 
     private final PostService postService;
     private final UserRepository userRepository;
-    private final CommentService commentService;
 
     private UserEntity getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -106,27 +106,6 @@ public class BoardController {
                 .build();
 
         return ResponseEntity.ok(postDetailDTO);
-    }
-
-    // 댓글 목록 조회 API
-    @GetMapping("{postId}/comments")
-    public ResponseEntity<?> getCommentsByPostId(
-            @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createDate"));
-        Page<CommentEntity> commentPage = commentService.getCommentsByPostId(postId, pageable);
-
-        // 댓글 목록을 CommentDTO로 변환하여 응답
-        Page<getCommentsByPostIdDTO> commentDTOPage = commentPage.map(comment -> getCommentsByPostIdDTO.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
-                .author(comment.getAuthor().getUsername())  // 댓글 작성자
-                .createDate(comment.getCreateDate())        // 댓글 작성일
-                .build());
-
-        return ResponseEntity.ok(commentDTOPage);
     }
 
 }

@@ -46,11 +46,15 @@ public class PostService {
     public ServiceResult createPost(PostDTO postDTO, UserEntity currentUser) {
 
         try {
-            postRepository.save(PostEntity.builder()
+            PostEntity post = PostEntity.builder()
                     .title(postDTO.getTitle())
                     .content(postDTO.getContent())
-                    .author(currentUser)
-                    .build());
+                    .build();
+
+            // 연관관계 편의 메서드를 통해 게시글 작성자 설정
+            currentUser.addPost(post);
+
+            postRepository.save(post);
         } catch (Exception e) {
             // 예외 발생 시 500 상태 코드와 함께 메시지 전달
             throw new BizException("게시글 등록 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,6 +93,9 @@ public class PostService {
         if (!postEntity.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
             throw new BizException("게시글을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
+
+        // 연관관계 편의 메서드를 통해 게시글 삭제 처리
+        currentUser.removePost(postEntity);
 
         postRepository.delete(postEntity);
 

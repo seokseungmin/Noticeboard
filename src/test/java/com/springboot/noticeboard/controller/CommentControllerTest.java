@@ -20,10 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -53,6 +60,7 @@ public class CommentControllerTest {
     private UserEntity currentUser;
     private PostEntity post;
     private CommentEntity comment;
+    private CommentEntity Secondcomment;
 
     @BeforeEach
     void setUp() {
@@ -81,6 +89,14 @@ public class CommentControllerTest {
                 .post(post)
                 .build();
 
+        // Mock 댓글 설정
+        Secondcomment = CommentEntity.builder()
+                .id(2L)
+                .content("Second Test Comment")
+                .author(currentUser)
+                .post(post)
+                .build();
+
         // Mock UserRepository와 PostRepository에서 사용자와 게시글을 찾아올 수 있도록 설정
         Mockito.when(userRepository.findByEmail(currentUser.getEmail()))
                 .thenReturn(java.util.Optional.of(currentUser));
@@ -92,14 +108,14 @@ public class CommentControllerTest {
     @DisplayName("댓글 작성 테스트")
     public void testAddComment() throws Exception {
         // Given: 댓글 작성용 DTO 준비
-        CommentDTO commentDTO = new CommentDTO("This is a test comment", post.getId());
+        CommentDTO commentDTO = new CommentDTO("This is a test comment");
 
         // When: 댓글 작성 서비스 호출을 Mocking
-        Mockito.when(commentService.addComment(any(CommentDTO.class), any(UserEntity.class)))
+        Mockito.when(commentService.addComment(anyLong(), any(CommentDTO.class), any(UserEntity.class)))
                 .thenReturn(ServiceResult.success(HttpStatus.CREATED, "댓글 작성이 완료되었습니다."));
 
         // Then: MockMvc를 사용하여 API 호출 및 검증
-        mockMvc.perform(post("/comments")
+        mockMvc.perform(post("/comments/"+ post.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentDTO))
                         .with(SecurityMockMvcRequestPostProcessors.user(new CustomUserDetails(currentUser))))
@@ -141,6 +157,25 @@ public class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.header.result").value(true))
                 .andExpect(jsonPath("$.header.message").value("댓글이 성공적으로 삭제되었습니다."));
+    }
+
+    @Test
+    @DisplayName("댓글 목록 조회 테스트")
+    public void testGetCommentsByPostId() throws Exception {
+        List<CommentEntity> comments = Arrays.asList(comment, Secondcomment);
+        Page<CommentEntity> commentPage = new PageImpl<>(comments, PageRequest.of(0, 10), comments.size());
+
+        Mockito.when(commentService.getCommentsByPostId(anyLong(), any(Pageable.class))).thenReturn(commentPage);
+
+        mockMvc.perform(get("/comments/" + post.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.user(new CustomUserDetails(currentUser)))
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].content").value(comment.getContent()))
+                .andExpect(jsonPath("$.content[0].author").value(currentUser.getUsername()))
+                .andExpect(jsonPath("$.content[1].content").value(Secondcomment.getContent()))
+                .andExpect(jsonPath("$.content[1].author").value(currentUser.getUsername()));
     }
 
 }

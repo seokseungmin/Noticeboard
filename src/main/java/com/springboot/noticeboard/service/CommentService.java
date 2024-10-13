@@ -25,18 +25,20 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public ServiceResult addComment(CommentDTO commentDTO, UserEntity author) {
+    public ServiceResult addComment(Long postId, CommentDTO commentDTO, UserEntity author) {
 
         // 게시글 존재 여부 확인
-        PostEntity post = postRepository.findById(commentDTO.getPostId())
+        PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new BizException("게시글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        // 댓글 저장
+        // 댓글 생성
         CommentEntity comment = CommentEntity.builder()
                 .content(commentDTO.getContent())
-                .author(author)
-                .post(post)
                 .build();
+
+        // 연관관계 편의 메서드를 통해 게시글과 작성자를 설정
+        post.addComment(comment);   // Post와의 관계 설정
+        author.addComment(comment); // Author와의 관계 설정
 
         // 게시글의 commentCount 증가
         post.setCommentCount(post.getCommentCount() + 1);
@@ -77,6 +79,10 @@ public class CommentService {
         // 게시글의 commentCount 감소
         PostEntity post = comment.getPost();
         post.setCommentCount(post.getCommentCount() - 1);
+
+        // 연관관계 편의 메서드를 통해 댓글 제거
+        post.removeComment(comment);   // Post와의 관계 해제
+        comment.getAuthor().removeComment(comment); // Author와의 관계 해제
 
         // 댓글 삭제
         commentRepository.delete(comment);
