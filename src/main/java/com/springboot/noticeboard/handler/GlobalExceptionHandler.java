@@ -6,6 +6,7 @@ import com.springboot.noticeboard.exception.BizException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         // 409 Conflict 상태 코드와 함께 반환
-        return ResponseResult.fail(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다.", null);
+        return ResponseResult.fail(HttpStatus.CONFLICT, ex.getMessage(), null);
     }
 
     // 커스텀 비즈니스 예외 처리 (동적 상태 코드 및 메시지 처리)
@@ -39,6 +40,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleBizException(BizException ex) {
         // BizException에서 상태 코드와 메시지를 동적으로 가져와서 반환
         return ResponseResult.fail(ex.getStatus(), ex.getMessage(), null);
+    }
+
+    // UsernameNotFoundException 처리 추가
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        // 404 Not Found 상태 코드와 함께 반환
+        return ResponseResult.fail(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
     // 그 외 모든 예외 처리

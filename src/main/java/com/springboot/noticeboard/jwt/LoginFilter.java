@@ -118,7 +118,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         log.warn("Authentication failed for user: {}", request.getParameter("email"), failed);
 
-        //로그인 실패시 401 응답 코드 반환
+        // 로그인 실패 시 401 응답 코드 반환
         try {
             // JSON 응답 생성
             ResponseUtil.setJsonResponse(response, false, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpServletResponse.SC_UNAUTHORIZED, "로그인에 실패했습니다");
